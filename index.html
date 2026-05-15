@@ -1,93 +1,336 @@
-<!DOCTYPE html>
-      font-size: 16px;
-    }
 
-    button {
-      background: #dc2626;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-    }
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.wrap { padding: 1.5rem 0; }
+h2.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+.header-icon { width: 36px; height: 36px; background: #1a1a2e; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; }
+.header-icon svg { width: 20px; height: 20px; }
+.title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.subtitle { font-size: 13px; color: var(--color-text-secondary); margin-top: 1px; }
+.status-bar { padding: 8px 12px; border-radius: var(--border-radius-md); font-size: 13px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+.status-bar.info { background: var(--color-background-info); color: var(--color-text-info); }
+.status-bar.success { background: var(--color-background-success); color: var(--color-text-success); }
+.status-bar.danger { background: var(--color-background-danger); color: var(--color-text-danger); }
+.status-bar.hidden { display: none; }
+.tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.table-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; cursor: pointer; transition: border-color 0.15s; }
+.table-card:hover { border-color: var(--color-border-secondary); }
+.table-card.selected { border: 2px solid var(--color-border-info); }
+.table-card .tc-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.table-card .tc-count { font-size: 12px; color: var(--color-text-secondary); }
+.table-card .tc-spinner { width: 12px; height: 12px; border: 1.5px solid var(--color-border-tertiary); border-top-color: var(--color-text-secondary); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.section-label { font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.filter-row { display: flex; gap: 8px; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+.filter-row input, .filter-row select { flex: 1; min-width: 120px; font-size: 13px; }
+.filter-row button { white-space: nowrap; font-size: 13px; padding: 0 14px; }
+.data-table-wrap { overflow-x: auto; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 1.25rem; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: auto; }
+th { background: var(--color-background-secondary); padding: 8px 12px; text-align: left; font-weight: 500; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
+td { padding: 8px 12px; color: var(--color-text-primary); border-bottom: 0.5px solid var(--color-border-tertiary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+tr.selected-row td { background: var(--color-background-danger); }
+.cb-cell { width: 32px; }
+input[type=checkbox] { cursor: pointer; width: 14px; height: 14px; }
+.actions-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn-danger { background: var(--color-background-danger) !important; color: var(--color-text-danger) !important; border-color: var(--color-border-danger) !important; }
+.empty-state { text-align: center; padding: 2rem; color: var(--color-text-secondary); font-size: 14px; }
+.pagination { display: flex; gap: 6px; align-items: center; justify-content: flex-end; margin-bottom: 1rem; font-size: 13px; color: var(--color-text-secondary); }
+.pagination button { padding: 4px 10px; font-size: 12px; }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1.5rem; max-width: 380px; width: 90%; }
+.modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+.modal p { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem; line-height: 1.6; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.loading-pulse { display: flex; gap: 6px; align-items: center; padding: 2rem; justify-content: center; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-text-secondary); animation: pulse 1s ease-in-out infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+</style>
 
-    button:hover {
-      background: #b91c1c;
-    }
-
-    .success {
-      color: #22c55e;
-      margin-top: 15px;
-    }
-
-    .error {
-      color: #ef4444;
-      margin-top: 15px;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="card">
-    <h1>Eliminar Datos</h1>
-
-    <select id="tableName">
-      <option value="usuarios">usuarios</option>
-      <option value="productos">productos</option>
-      <option value="pedidos">pedidos</option>
-    </select>
-
-    <button onclick="deleteAll()">
-      Borrar todos los registros
-    </button>
-
-    <div id="result"></div>
+<h2 class="sr-only">Administrador de base de datos Supabase — permite borrar registros de tablas</h2>
+<div class="wrap">
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5C3 3.9 3.9 3 5 3h14c1.1 0 2 .9 2 2v2H3V5z" fill="#3ECF8E"/><path d="M3 9h18v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V9z" fill="#1C1C1C" opacity=".7"/><path d="M7 13h10M7 17h6" stroke="#3ECF8E" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <div class="title">DB Manager</div>
+      <div class="subtitle">hcjomenskigcvkolooaz.supabase.co</div>
+    </div>
   </div>
 
-  <script>
-    const SUPABASE_URL = 'https://hcjomenskigcvkolooaz.supabase.co';
+  <div id="status" class="status-bar info hidden"></div>
 
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhjam9tZW5za2lnY3Zrb2xvb2F6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjY3NDksImV4cCI6MjA5NDM0Mjc0OX0.3PFpS1N0Et1Nmvl_glxaON-Z6RpuRKAS9OiNUj30xp8';
+  <div class="section-label">tablas detectadas</div>
+  <div id="tables-grid" class="tables-grid">
+    <div class="loading-pulse"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
 
-    const supabase = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON
-    );
+  <div id="data-section" style="display:none;">
+    <div class="filter-row">
+      <input type="text" id="search-input" placeholder="Buscar en registros..." />
+      <select id="col-filter"><option value="">Todos los campos</option></select>
+      <button id="load-btn" onclick="loadData()"><i class="ti ti-refresh" aria-hidden="true"></i> Recargar</button>
+    </div>
+    <div id="table-wrap" class="data-table-wrap"></div>
+    <div id="pagination" class="pagination"></div>
+    <div class="actions-bar">
+      <button id="select-all-btn" onclick="toggleSelectAll()"><i class="ti ti-checkbox" aria-hidden="true"></i> Seleccionar todo</button>
+      <button id="delete-selected-btn" class="btn-danger" onclick="confirmDelete()" style="display:none;"><i class="ti ti-trash" aria-hidden="true"></i> Borrar seleccionados (<span id="sel-count">0</span>)</button>
+      <button id="delete-all-btn" class="btn-danger" onclick="confirmDeleteAll()"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Borrar toda la tabla</button>
+    </div>
+  </div>
+</div>
 
-    async function deleteAll() {
-      const table = document.getElementById('tableName').value;
-      const result = document.getElementById('result');
+<div id="modal" class="modal-bg" style="display:none;">
+  <div class="modal">
+    <h3 id="modal-title">Confirmar eliminación</h3>
+    <p id="modal-msg"></p>
+    <div class="modal-actions">
+      <button onclick="closeModal()">Cancelar</button>
+      <button class="btn-danger" id="modal-confirm-btn" onclick="executeDelete()"><i class="ti ti-trash" aria-hidden="true"></i> Confirmar borrado</button>
+    </div>
+  </div>
+</div>
 
-      const confirmDelete = confirm(
-        `¿Seguro que deseas borrar TODOS los datos de la tabla "${table}"?`
-      );
+<script>
+const URL = 'https://hcjomenskigcvkolooaz.supabase.co';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhjam9tZW5za2lnY3Zrb2xvb2F6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjY3NDksImV4cCI6MjA5NDM0Mjc0OX0.3PFpS1N0Et1Nmvl_glxaON-Z6RpuRKAS9OiNUj30xp8';
+const HEADERS = { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 
-      if (!confirmDelete) return;
+let currentTable = null;
+let allRows = [];
+let selectedIds = new Set();
+let pkColumn = null;
+let currentPage = 1;
+const PAGE_SIZE = 20;
+let pendingDeleteAll = false;
+let pendingDeleteIds = null;
 
-      result.innerHTML = 'Eliminando...';
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg; el.className = 'status-bar ' + type;
+}
+function hideStatus() { document.getElementById('status').className = 'status-bar hidden'; }
 
-      try {
-        const { error } = await supabase
-          .from(table)
-          .delete()
-          .neq('id', 0);
+async function sb(path, opts={}) {
+  const r = await fetch(URL + '/rest/v1/' + path, { headers: HEADERS, ...opts });
+  if (!r.ok) { const e = await r.json().catch(()=>({message:r.statusText})); throw new Error(e.message||r.statusText); }
+  return r.status === 204 ? null : r.json();
+}
 
-        if (error) {
-          result.innerHTML = `<div class="error">${error.message}</div>`;
-          return;
-        }
-
-        result.innerHTML = `
-          <div class="success">
-            Todos los registros de ${table} fueron eliminados.
-          </div>
-        `;
-
-      } catch (err) {
-        result.innerHTML = `<div class="error">${err.message}</div>`;
-      }
+async function loadTables() {
+  try {
+    const data = await sb('?select=table_name&order=table_name', { headers: { ...HEADERS, 'Accept': 'application/json' }});
+    throw new Error('probe');
+  } catch(_) {}
+  try {
+    const r = await fetch(URL + '/rest/v1/', { headers: HEADERS });
+    const text = await r.text();
+    const paths = [];
+    const matches = text.matchAll(/"\/([^"]+)"/g);
+    for (const m of matches) {
+      if (!m[1].startsWith('rpc') && m[1] !== '') paths.push(m[1]);
     }
-  </script>
+    if (paths.length) return renderTables(paths);
+  } catch(_) {}
+  const r2 = await fetch(URL + '/rest/v1/', { headers: HEADERS });
+  const json = await r2.json().catch(()=>null);
+  if (json && json.paths) {
+    const tables = Object.keys(json.paths).map(p=>p.replace('/','').split('?')[0]).filter(Boolean);
+    renderTables([...new Set(tables)]);
+  } else {
+    document.getElementById('tables-grid').innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle" aria-hidden="true"></i><br>No se pudieron detectar tablas automáticamente.<br><br><button onclick="promptManualTable()">Ingresar nombre de tabla manualmente</button></div>';
+  }
+}
 
-</body>
-</html>
+function promptManualTable() {
+  const name = prompt('Ingresa el nombre de la tabla:');
+  if (name && name.trim()) renderTables([name.trim()]);
+}
 
+async function renderTables(names) {
+  const grid = document.getElementById('tables-grid');
+  grid.innerHTML = '';
+  for (const name of names) {
+    const card = document.createElement('div');
+    card.className = 'table-card';
+    card.dataset.table = name;
+    card.innerHTML = `<div class="tc-name"><i class="ti ti-table" aria-hidden="true"></i>${name}</div><div class="tc-count"><span class="tc-spinner"></span> cargando...</div>`;
+    card.onclick = () => selectTable(name, card);
+    grid.appendChild(card);
+    fetchCount(name, card);
+  }
+}
 
+async function fetchCount(name, card) {
+  try {
+    const r = await fetch(URL + '/rest/v1/' + name + '?select=*&limit=1', { headers: { ...HEADERS, 'Prefer': 'count=exact' } });
+    const count = r.headers.get('content-range')?.split('/')[1] || '?';
+    card.querySelector('.tc-count').innerHTML = `<i class="ti ti-database" aria-hidden="true"></i> ${count} registros`;
+  } catch(e) {
+    card.querySelector('.tc-count').textContent = 'sin acceso';
+  }
+}
+
+async function selectTable(name, card) {
+  document.querySelectorAll('.table-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  currentTable = name;
+  selectedIds.clear();
+  currentPage = 1;
+  document.getElementById('data-section').style.display = 'block';
+  await loadData();
+}
+
+async function loadData() {
+  if (!currentTable) return;
+  showStatus('Cargando datos de ' + currentTable + '...', 'info');
+  document.getElementById('table-wrap').innerHTML = '<div class="loading-pulse"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  try {
+    const rows = await sb(currentTable + '?select=*&limit=500');
+    allRows = rows || [];
+    if (allRows.length > 0) {
+      pkColumn = Object.keys(allRows[0])[0];
+      populateColFilter(Object.keys(allRows[0]));
+    }
+    renderTable();
+    hideStatus();
+  } catch(e) {
+    showStatus('Error al cargar: ' + e.message, 'danger');
+    document.getElementById('table-wrap').innerHTML = '<div class="empty-state">No se pudo cargar la tabla.</div>';
+  }
+}
+
+function populateColFilter(cols) {
+  const sel = document.getElementById('col-filter');
+  sel.innerHTML = '<option value="">Todos los campos</option>' + cols.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function getFilteredRows() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const col = document.getElementById('col-filter').value;
+  if (!q) return allRows;
+  return allRows.filter(row => {
+    const fields = col ? [row[col]] : Object.values(row);
+    return fields.some(v => String(v??'').toLowerCase().includes(q));
+  });
+}
+
+function renderTable() {
+  const filtered = getFilteredRows();
+  const total = filtered.length;
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page = filtered.slice(start, start+PAGE_SIZE);
+  const wrap = document.getElementById('table-wrap');
+  if (!page.length) { wrap.innerHTML = '<div class="empty-state">No hay registros.</div>'; return; }
+  const cols = Object.keys(allRows[0]);
+  let html = '<table><thead><tr><th class="cb-cell"><input type="checkbox" id="header-cb" onchange="togglePageSelect(this.checked)" /></th>';
+  cols.forEach(c => html += `<th>${c}</th>`);
+  html += '</tr></thead><tbody>';
+  page.forEach(row => {
+    const id = row[pkColumn];
+    const sel = selectedIds.has(id);
+    html += `<tr class="${sel?'selected-row':''}" id="row-${id}"><td class="cb-cell"><input type="checkbox" ${sel?'checked':''} onchange="toggleRow(this,'${id}')" /></td>`;
+    cols.forEach(c => html += `<td title="${String(row[c]??'')}">${String(row[c]??'')}</td>`);
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+  updateDeleteBtn();
+  renderPagination(total);
+}
+
+function toggleRow(cb, id) {
+  if (cb.checked) selectedIds.add(id); else selectedIds.delete(id);
+  const row = document.getElementById('row-'+id);
+  if (row) row.className = cb.checked ? 'selected-row' : '';
+  updateDeleteBtn();
+}
+
+function togglePageSelect(checked) {
+  const filtered = getFilteredRows();
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page = filtered.slice(start, start+PAGE_SIZE);
+  page.forEach(row => {
+    const id = row[pkColumn];
+    if (checked) selectedIds.add(id); else selectedIds.delete(id);
+    const el = document.getElementById('row-'+id);
+    if (el) el.className = checked ? 'selected-row' : '';
+  });
+  updateDeleteBtn();
+}
+
+function toggleSelectAll() {
+  const allSelected = selectedIds.size === allRows.length;
+  selectedIds.clear();
+  if (!allSelected) allRows.forEach(r => selectedIds.add(r[pkColumn]));
+  renderTable();
+}
+
+function updateDeleteBtn() {
+  const btn = document.getElementById('delete-selected-btn');
+  const count = selectedIds.size;
+  document.getElementById('sel-count').textContent = count;
+  btn.style.display = count > 0 ? 'inline-flex' : 'none';
+}
+
+function renderPagination(total) {
+  const pages = Math.ceil(total / PAGE_SIZE);
+  const p = document.getElementById('pagination');
+  if (pages <= 1) { p.innerHTML = `<span>${total} registros</span>`; return; }
+  let html = `<span>${total} registros &nbsp;|&nbsp; Página ${currentPage} de ${pages}</span>`;
+  if (currentPage > 1) html += `<button onclick="changePage(${currentPage-1})"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>`;
+  html += `<button onclick="changePage(${currentPage+1})" ${currentPage>=pages?'disabled':''}>Siguiente <i class="ti ti-chevron-right" aria-hidden="true"></i></button>`;
+  p.innerHTML = html;
+}
+
+function changePage(n) { currentPage = n; renderTable(); }
+
+document.getElementById('search-input').addEventListener('input', ()=>{ currentPage=1; renderTable(); });
+document.getElementById('col-filter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
+
+function confirmDelete() {
+  pendingDeleteAll = false;
+  pendingDeleteIds = [...selectedIds];
+  document.getElementById('modal-title').textContent = 'Confirmar eliminación';
+  document.getElementById('modal-msg').textContent = `¿Estás seguro de que deseas borrar ${pendingDeleteIds.length} registro(s) de la tabla "${currentTable}"? Esta acción no se puede deshacer.`;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function confirmDeleteAll() {
+  pendingDeleteAll = true;
+  pendingDeleteIds = null;
+  document.getElementById('modal-title').textContent = '⚠ Borrar toda la tabla';
+  document.getElementById('modal-msg').textContent = `Estás a punto de borrar TODOS los registros de la tabla "${currentTable}". Esta acción es irreversible.`;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+async function executeDelete() {
+  closeModal();
+  try {
+    if (pendingDeleteAll) {
+      showStatus('Borrando todos los registros...', 'info');
+      await sb(currentTable + '?${pkColumn}=not.is.null', { method: 'DELETE', headers: { ...HEADERS, 'Prefer': 'return=minimal' } });
+    } else {
+      showStatus(`Borrando ${pendingDeleteIds.length} registros...`, 'info');
+      const ids = pendingDeleteIds.map(id => encodeURIComponent(id)).join(',');
+      await sb(`${currentTable}?${pkColumn}=in.(${ids})`, { method: 'DELETE', headers: { ...HEADERS, 'Prefer': 'return=minimal' } });
+    }
+    selectedIds.clear();
+    showStatus('Registros eliminados correctamente.', 'success');
+    await loadData();
+    fetchCount(currentTable, document.querySelector('.table-card.selected'));
+  } catch(e) {
+    showStatus('Error al borrar: ' + e.message, 'danger');
+  }
+}
+
+loadTables();
+</script>
