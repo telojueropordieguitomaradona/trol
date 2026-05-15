@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+      font-size: 16px;
+    }
+
+    button {
+      background: #dc2626;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #b91c1c;
+    }
+
+    .success {
+      color: #22c55e;
+      margin-top: 15px;
+    }
+
+    .error {
+      color: #ef4444;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Eliminar Datos</h1>
+
+    <select id="tableName">
+      <option value="usuarios">usuarios</option>
+      <option value="productos">productos</option>
+      <option value="pedidos">pedidos</option>
+    </select>
+
+    <button onclick="deleteAll()">
+      Borrar todos los registros
+    </button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://hcjomenskigcvkolooaz.supabase.co';
+
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhjam9tZW5za2lnY3Zrb2xvb2F6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjY3NDksImV4cCI6MjA5NDM0Mjc0OX0.3PFpS1N0Et1Nmvl_glxaON-Z6RpuRKAS9OiNUj30xp8';
+
+    const supabase = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON
+    );
+
+    async function deleteAll() {
+      const table = document.getElementById('tableName').value;
+      const result = document.getElementById('result');
+
+      const confirmDelete = confirm(
+        `¿Seguro que deseas borrar TODOS los datos de la tabla "${table}"?`
+      );
+
+      if (!confirmDelete) return;
+
+      result.innerHTML = 'Eliminando...';
+
+      try {
+        const { error } = await supabase
+          .from(table)
+          .delete()
+          .neq('id', 0);
+
+        if (error) {
+          result.innerHTML = `<div class="error">${error.message}</div>`;
+          return;
+        }
+
+        result.innerHTML = `
+          <div class="success">
+            Todos los registros de ${table} fueron eliminados.
+          </div>
+        `;
+
+      } catch (err) {
+        result.innerHTML = `<div class="error">${err.message}</div>`;
+      }
+    }
+  </script>
+
+</body>
+</html>
+
+
